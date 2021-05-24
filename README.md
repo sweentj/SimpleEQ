@@ -1,0 +1,1 @@
+simple EQ pluging based on https://www.youtube.com/watch?v=i_Iq4_Kd7Rc&list=WL&index=168&t=172s&ab_channel=freeCodeCamp.org
