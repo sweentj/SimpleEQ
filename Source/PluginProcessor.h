@@ -95,6 +95,9 @@ private:
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
 
+    template <typename ChainType, typename CoeffType>
+    void updateCutFilter(ChainType& leftLowCut, const CoeffType& cutCoefficients, const Slope lowCutSlope);
+
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleEQAudioProcessor)
 };
