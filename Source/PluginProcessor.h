@@ -26,6 +26,10 @@ struct ChainSettings {
 
 ChainSettings getChainSettings(juce::AudioProcessorValueTreeState& apvts);
 
+
+template <int Index, typename ChainType, typename CoeffType>
+void update(ChainType& chain, const CoeffType& coefficients);
+
 //==============================================================================
 /**
 */
@@ -94,6 +98,9 @@ private:
 
     using Coefficients = Filter::CoefficientsPtr;
     static void updateCoefficients(Coefficients& old, const Coefficients& replacements);
+
+    template <int Index, typename ChainType, typename CoeffType>
+    void update(ChainType& chain, const CoeffType& coefficients);
 
     template <typename ChainType, typename CoeffType>
     void updateCutFilter(ChainType& leftLowCut, const CoeffType& cutCoefficients, const Slope lowCutSlope);
