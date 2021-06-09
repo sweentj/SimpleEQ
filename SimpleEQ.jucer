@@ -7,6 +7,10 @@
     <GROUP id="{66908D0F-7968-63C0-EBAE-F88DD6FBA204}" name="Source">
       <FILE id="TXJXBh" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
+      <FILE id="pzn2UR" name="ResponseCurveComponent.cpp" compile="1" resource="0"
+            file="Source/ResponseCurveComponent.cpp"/>
+      <FILE id="FdPC0A" name="ResponseCurveComponent.h" compile="0" resource="0"
+            file="Source/ResponseCurveComponent.h"/>
       <FILE id="R2dTzn" name="PluginProcessor.h" compile="0" resource="0"
             file="Source/PluginProcessor.h"/>
       <FILE id="ccV66n" name="PluginEditor.cpp" compile="1" resource="0"
