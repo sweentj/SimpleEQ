@@ -161,13 +161,17 @@ void SimpleEQAudioProcessorEditor::parameterGestureChanged(int parameterIndex, b
 void SimpleEQAudioProcessorEditor::timerCallback() {
     if (parametersChanged.compareAndSetBool(false, true)) {
         //update the monochain from apvts
+        double sampleRate = audioProcessor.getSampleRate();
+
         auto chainSettings = getChainSettings(audioProcessor.apvts);
-        auto peakCoefficients = makePeakFilter(chainSettings, audioProcessor.getSampleRate());
+        auto peakCoefficients = makePeakFilter(chainSettings, sampleRate);
         updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
 
-        auto lowCutCoefficients = makeLowCutFilter(chainSettings, audioProcessor.getSampleRate());
+        auto lowCutCoefficients = makeLowCutFilter(chainSettings, sampleRate);
+        auto highCutCoefficients = makeHighCutFilter(chainSettings, sampleRate);
 
-        auto highCutCoefficients = makeHighCutFilter(chainSettings, audioProcessor.getSampleRate());
+        updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
         //signal a repaint to update response curve
         repaint();
     }
