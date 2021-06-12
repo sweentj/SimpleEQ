@@ -103,8 +103,8 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 {
     using namespace juce;
 
-    auto startAng = degreesToRadians(180.f + 22.5f);
-    auto endAng = degreesToRadians(180.f - 22.5f) + MathConstants<float>::twoPi;
+    auto startAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
 
     auto range = getRange();
 
@@ -125,6 +125,32 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
                                     startAng, 
                                     endAng, 
                                     *this);
+
+    auto center = sliderBounds.toFloat().getCentre();
+    auto radius = sliderBounds.toFloat().getWidth() * 0.5f;
+
+    g.setColour(Colour(0u, 1722u, 1u));
+    g.setFont(getTextHeight());
+
+    auto numChoices = labels.size();
+    for (int i = 0; i < numChoices; ++i)
+    {
+        auto pos = labels[i].pos;
+        jassert(0.f <= pos);
+        jassert(1.f >= pos);
+
+        auto ang = jmap(pos, 0.f, 1.f, startAng, endAng);
+
+        auto c = center.getPointOnCircumference(radius + getTextHeight() * 0.5f + 1, ang);
+
+        Rectangle<float> r;
+        auto str = labels[i].label;
+        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        r.setCentre(c);
+        r.setY(r.getY() + getTextHeight());
+
+        g.drawFittedText(str, r.toNearestInt(), juce::Justification::centred, 1);
+    }
 }
 
 juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
@@ -144,6 +170,8 @@ juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
 
 
 //==============================================================================
+
+
 SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor& p)
     : AudioProcessorEditor(&p), audioProcessor(p),
     peakFreqSlider(*audioProcessor.apvts.getParameter("PeakFreq"), "Hz"),
@@ -163,6 +191,32 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
     responseCurve(p)
 
 {
+
+    peakFreqSlider.labels.add({ 0.f, "20Hz" });
+    peakFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    peakGainSlider.labels.add({ 0.f, "-24dB" });
+    peakGainSlider.labels.add({ 1.f, "+24dB" });
+
+    peakGainSlider.labels.add({ 0.f, "-24dB" });
+    peakGainSlider.labels.add({ 1.f, "+24dB" });
+
+    peakQualitySlider.labels.add({ 0.f, "0.1" });
+    peakQualitySlider.labels.add({ 1.f, "10" });
+
+    lowCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    lowCutFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    highCutFreqSlider.labels.add({ 0.f, "20Hz" });
+    highCutFreqSlider.labels.add({ 1.f, "20kHz" });
+
+    lowCutSlopeSlider.labels.add({ 0.f, "-12dB" });
+    lowCutSlopeSlider.labels.add({ 1.f, "-48dB" });
+
+    highCutSlopeSlider.labels.add({ 0.f, "-12dB" });
+    highCutSlopeSlider.labels.add({ 1.f, "-48dB" });
+
+
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
     for (auto* comp : getComps() ){
