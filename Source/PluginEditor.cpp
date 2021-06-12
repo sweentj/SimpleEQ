@@ -63,8 +63,39 @@ void LookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int width, i
 
 juce::String RotarySliderWithLabels::getDisplayString() const
 {
+    if (auto* choiceParam = dynamic_cast<juce::AudioParameterChoice*>(param))
+    {
+        return choiceParam->getCurrentChoiceName();
+    }
+    juce::String str;
+    bool addK = false;
 
-    return juce::String(this->getValue());
+    if (auto* floatParam = dynamic_cast<juce::AudioParameterFloat*>(param))
+    {
+        float val = this->getValue();
+        if (val > 999.f)
+        {
+            val /= 1000.f;
+            addK = true;
+        }
+        str = juce::String(val, (addK ? 2 : 0));
+    }
+    else
+    {
+        jassertfalse; //this should not happen. bad.
+    }
+
+    if (this->suffix != "")
+    {
+        str << " ";
+            if (addK)
+            {
+                str << "k";
+            }
+        str << suffix;
+    }
+
+    return str;
 }
 
 //==============================================================================
@@ -79,10 +110,10 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 
     auto sliderBounds = getSliderBounds();
 
-    g.setColour(Colours::red);
-    g.drawRect(getLocalBounds());
-    g.setColour(Colours::green);
-    g.drawRect(sliderBounds);
+    //g.setColour(Colours::red);
+    //g.drawRect(getLocalBounds());
+    //g.setColour(Colours::green);
+    //g.drawRect(sliderBounds);
 
 
     getLookAndFeel().drawRotarySlider(g, 
