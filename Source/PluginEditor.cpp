@@ -9,12 +9,79 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+void LookAndFeel::drawRotarySlider(juce::Graphics& g, int x, int y, int width, int height, float sliderPos,
+    const float rotaryStartAngle, const float rotaryEndAngle, juce::Slider& slider)
+{
+    using namespace juce;
 
+    auto bounds = Rectangle<float>(x, y, width, height);
+
+    g.setColour(Colour(97u, 18u, 167u));
+    g.fillEllipse(bounds);
+
+    g.setColour(Colour(255u, 154u, 1u));
+    g.drawEllipse(bounds, 1.f);
+
+    auto center = bounds.getCentre();
+
+    Path p;
+
+    Rectangle<float> r;
+    r.setLeft(center.getX() - 2);
+    r.setRight(center.getX() + 2);
+    r.setTop(bounds.getY());
+    r.setBottom(center.getY());
+
+    p.addRectangle(r);
+
+    jassert(rotaryStartAngle < rotaryEndAngle);
+
+    auto sliderAngRad = jmap(sliderPos, 0.f, 1.f, rotaryStartAngle, rotaryEndAngle);
+
+    p.applyTransform(AffineTransform().rotated(sliderAngRad, center.getX(), center.getY()));
+
+    g.fillPath(p);
+}
+
+//==============================================================================
+void RotarySliderWithLabels::paint(juce::Graphics& g)
+{
+    using namespace juce;
+
+    auto startAng = degreesToRadians(180.f + 22.5f);
+    auto endAng = degreesToRadians(180.f - 22.5f) + MathConstants<float>::twoPi;
+
+    auto range = getRange();
+
+    auto sliderBounds = getSliderBounds();
+
+    getLookAndFeel().drawRotarySlider(g, 
+                                    sliderBounds.getX(), 
+                                    sliderBounds.getY(), 
+                                    sliderBounds.getWidth(), 
+                                    sliderBounds.getHeight(), 
+                                    jmap(getValue(), range.getStart(), range.getEnd(), 0.0, 1.0), 
+                                    startAng, 
+                                    endAng, 
+                                    *this);
+}
+
+juce::Rectangle<int> RotarySliderWithLabels::getSliderBounds() const
+{
+    return getLocalBounds();
+}
 
 
 //==============================================================================
-SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcessor& p)
-    : AudioProcessorEditor (&p), audioProcessor (p),
+SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcessor& p)
+    : AudioProcessorEditor(&p), audioProcessor(p),
+    peakFreqSlider(*audioProcessor.apvts.getParameter("PeakFreq"), "Hz"),
+    peakGainSlider(*audioProcessor.apvts.getParameter("PeakGain"), "dB"),
+    peakQualitySlider(*audioProcessor.apvts.getParameter("PeakQuality"), ""),
+    lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCutFreq"), "Hz"),
+    lowCutSlopeSlider(*audioProcessor.apvts.getParameter("LowCutSlope"), "dB/Oct"),
+    highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCutFreq"), "Hz"),
+    highCutSlopeSlider(*audioProcessor.apvts.getParameter("HighCutSlope"), "dB/Oct"),
     peakFreqSliderAttachment(audioProcessor.apvts, "PeakFreq", peakFreqSlider),
     peakGainSliderAttachment(audioProcessor.apvts, "PeakGain", peakGainSlider),
     peakQualitySliderAttachment(audioProcessor.apvts, "PeakQuality", peakQualitySlider),
@@ -27,7 +94,6 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor (SimpleEQAudioProcess
 {
     // Make sure that before the constructor has finished, you've set the
     // editor's size to whatever you need it to be.
-
     for (auto* comp : getComps() ){
         addAndMakeVisible(comp);
     }
