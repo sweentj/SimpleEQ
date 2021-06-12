@@ -225,7 +225,7 @@ SimpleEQAudioProcessorEditor::SimpleEQAudioProcessorEditor(SimpleEQAudioProcesso
 
     addAndMakeVisible(&responseCurve);
 
-    setSize (600, 400);
+    setSize (600, 500);
 }
 
 SimpleEQAudioProcessorEditor::~SimpleEQAudioProcessorEditor()
@@ -249,7 +249,10 @@ void SimpleEQAudioProcessorEditor::resized()
     // subcomponents in your editor..
 
     juce::Rectangle<int> bounds = getLocalBounds();
-    juce::Rectangle<int> responseArea = bounds.removeFromTop(bounds.getHeight() * 0.33);
+    float hRatio = 33.f / 100.f; // JUCE_LIVE_CONSTANT(33) / 100.f;
+    juce::Rectangle<int> responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
+
+    bounds.removeFromTop(5);
 
     responseCurve.setBounds(responseArea);
 

@@ -34,5 +34,7 @@ private:
 
     MonoChain monoChain;
 
+    void updateChain();
+
     SimpleEQAudioProcessor& audioProcessor;
 };

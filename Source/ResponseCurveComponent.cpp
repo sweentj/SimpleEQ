@@ -16,6 +16,9 @@ ResponseCurveComponent::ResponseCurveComponent(SimpleEQAudioProcessor& p) : audi
     for (auto param : params) {
         param->addListener(this);
     }
+
+    updateChain();
+
     startTimer(60);
 }
 
@@ -50,7 +53,7 @@ void ResponseCurveComponent::paint(juce::Graphics& g)
 
     for (int i = 0; i < w; ++i) {
         double mag = 1.f;
-        auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
+        auto freq = mapToLog10(double(i) / double(w), 10.0, 22000.0);
 
         if (!monoChain.isBypassed<ChainPositions::Peak>()) {
             mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
@@ -118,10 +121,12 @@ void ResponseCurveComponent::parameterGestureChanged(int parameterIndex, bool ge
     //we don't care about this boi
 }
 
-void ResponseCurveComponent::timerCallback() {
+void ResponseCurveComponent::timerCallback() 
+{
     if (parametersChanged.compareAndSetBool(false, true)) {
+        updateChain();
         //update the monochain from apvts
-        double sampleRate = audioProcessor.getSampleRate();
+        /*double sampleRate = audioProcessor.getSampleRate();
 
         auto chainSettings = getChainSettings(audioProcessor.apvts);
         auto peakCoefficients = makePeakFilter(chainSettings, sampleRate);
@@ -131,8 +136,23 @@ void ResponseCurveComponent::timerCallback() {
         auto highCutCoefficients = makeHighCutFilter(chainSettings, sampleRate);
 
         updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
-        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
+        updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);*/
         //signal a repaint to update response curve
         repaint();
     }
+}
+
+void ResponseCurveComponent::updateChain()
+{
+    double sampleRate = audioProcessor.getSampleRate();
+
+    auto chainSettings = getChainSettings(audioProcessor.apvts);
+    auto peakCoefficients = makePeakFilter(chainSettings, sampleRate);
+    updateCoefficients(monoChain.get<ChainPositions::Peak>().coefficients, peakCoefficients);
+
+    auto lowCutCoefficients = makeLowCutFilter(chainSettings, sampleRate);
+    auto highCutCoefficients = makeHighCutFilter(chainSettings, sampleRate);
+
+    updateCutFilter(monoChain.get<ChainPositions::LowCut>(), lowCutCoefficients, chainSettings.lowCutSlope);
+    updateCutFilter(monoChain.get<ChainPositions::HighCut>(), highCutCoefficients, chainSettings.highCutSlope);
 }
